@@ -1,0 +1,35 @@
+
+Developers:
+    Vladimir Safronov a.k.a. Blade_Arma © 2004-2011
+
+Documenters / Translators:
+    Vladimir Safronov a.k.a. Blade_Arma ©
+    Kirill Buharov a.k.a. F1ReB4LL ©
+        ""Could you write a whole readme, please?"
+        from you means I'm going to be in your
+        slavery forever, because your readme will never,
+        n-e-v-e-r be finished!!!!!
+    Jevgenij Lapin a.k.a. Skeith Of The Azure Flame ©
+        "Even if the morrow is a barren of promises, nothing shall forestall my 
+return.
+        To become the dew that quenches the land. To spare the sands, the seas,
+        the skies I offer thee this silent sacrifice."
+    R4kk00n ©
+
+Maestros:
+(These are the people of the highest level of proficiency in many areas,
+ firm of purpose, with an ability to think a few steps forward.
+ When I ask them something, I always get an irrefragable answer)
+    Roman Zakharchuk a.k.a. RomikB ©
+    Boris Chuprin a.k.a. E}I{ ©
+        "What's the fuck with those emuauthors?
+        They know fuckin nothing!!!"
+    Yuri Stepanenko a.k.a. gl_wizard ©
+    Igor Vnukov a.k.a HardWareMan ©
+    Andrey Shestakov a.k.a Organic ©
+    Shiru ©
+
+Testers:
+    Kirill Buharov a.k.a. F1ReB4LL ©
+    Jaroslaw Tanunin a.k.a. [bETA]mEN ©
+    Eevon ©

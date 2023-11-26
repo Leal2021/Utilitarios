@@ -1,0 +1,621 @@
+--------------------------------------------------------------------------
+
+09. Juny, 2003   Version 1.4
+
+- Zydio detected that the cdr plugin locked up with certain
+  PPF3 patch files. With his help I was able to find the bug 
+  and, of course, to fix it. 
+
+- Yakato created a patch to compile the plugin with MinGW. You
+  can find the patch file and some infos about it with the 
+  sources in the "mingw" directory.
+
+
+--------------------------------------------------------------------------
+
+22. November, 2002   Version 1.3
+
+- A small, but for some users important, update: the 'cdr open'
+  crashing issue has been fixed :)
+
+  When I did the source clean up for the P.E.Op.S. release,
+  I copied the wrong SRB_GDEVBlock scsi structure into
+  one header file... the one I used in P.E.Op.S. didn't work
+  on all drives, sorry.
+  Well, no need for a source release this time, I think, since no
+  other changes has been done, if you want to repair the 1.2
+  sources, just copy the line
+  BYTE     pad[68];
+  at the end of the SRB_GDEVBlock structure in the wnaspi32.h
+  file.
+  
+  A big thanx goes to Aaron 'RandomManA' for kicking my lazy
+  ass and for checking some debug versions :)
+  
+
+--------------------------------------------------------------------------
+
+09. November, 2002   Version 1.2
+
+- linuzappz enhanced a cdr plugin status func which is used by
+  the PCSX emu, telling the emu if a drive is ready or not (for 
+  example when the user is swapping the cds). Linuzappz
+  used some very weird scsi command to do that, so if this
+  new cdr plugin version refuses to run with PCSX and your 
+  drive anymore, please mail bug reports to linuzappz (internal
+  note: maybe it would be a good idea for PCSX to have an option
+  to turn off the usage of the status func) ;)
+
+- Pete added a new caching mode, the new one is called 
+  "Smooth read". What is it for? well, I had the chance to check
+  out a new cdr drive, the LG GCR 8521B. First of all: it's not possible
+  to read subchannel data with that drive (with no available psx cdr 
+  plugin, and even ripping tools like CloneCD fail to read subs).
+  But even worse: while the drive speed is usually fine for psx
+  games, the drive has the bad habbit to block every ten seconds or
+  so when playing mdec movies, which is really annoying (also: happens
+  with all available psx cd plugins like the internal epsxe ones, Sapu's, 
+  and also with old versions of mine, doesn't matter what options were
+  used... also driver and firmware updates didn't help at all). 
+  So I've tried to get around that problem by coding an extrem thread 
+  caching mode, which does a lotta async read ahead... and finally
+  all movies were very smooth (of course in combination with the gpu's
+  frame limitation). While it's not the fastest available read mode, I hope
+  it will help drives with similar reading problems as well :)
+  Note #1 : activate the "try again on read error" option when using 
+  the new smooth reading (it's impossible for the plugin to report 
+  read errors to the main emu in this mode).
+  Note #2 : I dunno what will happen in smooth mode, if a main emu 
+  is doing CDDA by bypassing the cdr plugin... prolly CDDA will not 
+  be played.
+  
+
+--------------------------------------------------------------------------
+
+25. September, 2002   Version 1.1
+
+- After some source cleanup: first release of the P.E.Op.S.
+  cdr plugin, based on Pete's ASPI/IOCTL cdr plugin, 
+  version 1.11, but with some new features added, see below :)
+  Check out https://sourceforge.net/projects/peops/ for future 
+  releases... and the GPL'd source, if you are interessed...
+
+- SaPu pointed out, that even with the async fixes I've done in
+  V1.11, it's not possible to get real overlapped reading with
+  the W2K/XP IOCTL interfaces... and after some closer benchmarking
+  I had to agree with him (well, as you can see in the old version
+  notes, I've already wondered about the bad performance in XP
+  with my new Liteon drive).
+  So I had to go to work again, and now the plugin has a new 
+  caching mode, called 'Thread mode'. If that one is used, all
+  the reading (needed sector reads as well as the prefetch reads) 
+  is done asynchronous, giving finally a good speed in XP :)
+  Please note: when you are using the ASPI interface, the 
+  'Thread' speed will not differ much from the old 'Async' 
+  caching, it could even be slightly slower due to the additional
+  overhead. 
+
+- I've also added a new option called 'additional data cache'
+  That one will store up to 4 MBytes of already used sector data
+  in memory, which will help games which are reloading the same data
+  again and again (like Legend of Mana, for example). Sometimes
+  this kind of caching is absolutely useless, of course.
+
+
+
+--------------------------------------------------------------------------
+- Older version notes from Pete's ASPI/IOCTL cdr plugin
+--------------------------------------------------------------------------
+
+16. September, 2002   Version 1.11
+
+- I've added support for PPF3 patch files (in older versions
+  only PPF1 and PPF2 were supported). Big thanx to 
+  Doug Hoskisson for giving me all the needed informations.
+
+- A new drive has beed installed into one of my PCs... it's
+  a Liteon LTD163D DVD drive, and it worked not too bad
+  in W9X using the BE_2 mode with my own and the internal epsxe 
+  cdr plugins. 
+  But... no subchannel handling was supported (neither in my 
+  nor in the epsxe plugin, the screen always stayed black when
+  subchannels were enabled).
+  So I had to start up my compiler and go to work :)
+  Well, after a long fight with that drive I have figured out
+  how to do it (interesting encoded subdata), and it's now
+  fully supported in my plugin. Ah, but as always my advice is
+  NOT to use the "read subchannels" option, better create a 
+  SBI or M3S file for copy-protected games, and use that file
+  instead.
+  
+- By digging through my plugin sources I've noticed, that
+  the "Async read" caching mode was not correctly 
+  implemented with the "W2K/XP - IOCTL scsi commands"
+  interface (it was more like a "double synchronous read 
+  mode", tsts). I've fixed that, now real async reads will be 
+  performed in W2K/XP, even without the ASPI interface, 
+  but honestly I've not noticed a big speed difference :)
+
+- What else? mmm, maybe a small report about the Liteon drive:
+  while the raw psx cd reading performance in W9X is ok, the speed 
+  in WinXP is not perfect, especially with some mdecs:
+  in W9X the drive played a test-mdec with 100 fps, while the same
+  mdec dropped below 60 fps in WinXP! Just to compare the values:
+  my old TEAC scsi drive can play the same mdec in both W9X and
+  WinXP with 130 fps... mmm, and mdecs which don't use XA music were 
+  played fine on both drives and windows systems (around 250-300 fps)...
+  maybe something I have to investigate further... somewhen :)
+  
+
+"So I sit still in my room, today
+ winter's here
+ in summer's season
+ shall I say
+ I was wrong
+ if I'm right
+ farewell to my last hope"
+- "Bright Eyes" by Blind Guardian
+
+--------------------------------------------------------------------------
+
+15. March, 2002   Version 1.10
+
+- There is mainly one big topic in this release: subchannel handling.
+
+  First let me try to explain in an easy way what "subchannels" are for:
+  Beside the "real data" in a cd sector, there are also a few extra 
+  informations for each sector. That extra informations ("subchannel data")
+  are usually used on audio tracks, to give informations about the current
+  head position (unlike a data track, an audio track needs all bytes in a 
+  cd sector for the audio data, so there is no space left for sync infos or 
+  error correction infos... but in the q subchannel there is a track number, an
+  index number and even absolute/relative timestamps, so the audio cd player 
+  can use that for synchronisation while playing cd audio).
+
+  The subchannels are also present on data tracks, even if no file system
+  will need them... and once-upon-a-time game companies had a "great" idea
+  for copy protections: usually the timestamp in subchannel data will give
+  the position of the playing position... but data tracks don't need that
+  info... so why not abuse the data? Why not change, for example, the 
+  timestamp of a few special data sectors to some nonsense values? The game
+  can read back the subchannel of that sectors, and detect illegal cd
+  copies that way (since most cd writers will write correct timestamps, and
+  not the "nonsense" ones of the original cd).
+
+  OK, now I can hear the questions of many users, asking "so what's the 
+  problem? I only use original games, so I don't care about copy protection
+  issues."
+  Unluckily that's not true... unlike the psx cd drive, there are some 
+  problems reading subchannels on pc drives. The 'official' scsi commands for 
+  reading subchannel data will give you not the exact sub q data of a sector,
+  the values are usually from a +/- 1 second wrong sector (that's because 
+  the command was designed to give only rough position infos for audio playing, 
+  nothing else).
+  There _are_ vendor-specific subchannel read commands for most drives, but
+  the vendors are not giving such informations easily to interested users
+  (I am really wondering why... hell, it's my drive, and if it can read such
+  data, and if I want to use it to do that, why refuse to give me the
+  required informations? And next time when I buy a car, I prolly will not 
+  even get the keys for it, pfff).
+
+  So, in the past, users of _original_ but copy-protected psx game cds had 
+  to search the net for special game PPF patches (which removed the protection), 
+  if they wanted to play such a game in an emulator. Not very nice, isn't it?
+
+  The first emu team which tried to get around that situation was FPSE, afaik...
+  FPSE 0.10 was never released, but LDChen (main coder of FPSE) claimed he had 
+  some copy-protected games up and running, without any PPF patches (and I  
+  have no doubts about that... prolly he had found a command on his cd drive,
+  which was reading the subchannel data).
+
+  Well, lately more emu teams were trying to emulate copy protected games
+  (to freely quote lu_zero: "Cheats and hacks are bad! Only real emulation
+  is the true way!"), and so I (as the creator of this small cdr plugin) was 
+  forced to try my luck with subchannel reading as well :)
+
+  "Pain in the ass" doesn't describe my cdr coding sessions... it was a more 
+  overall pain, I can assure you ;)
+  But with much talks and more tests between the members of various psx emu
+  teams (hi to calb, _Demo_ and shunt), I can now proudly present version
+  1.10 with subchannel support.
+
+  So, now let's move to the new options:
+
+  1.) there is a mode called "Don't read subchannels". If your game doesn't 
+      have a copy protection, use that one. That mode will work like the previous
+      versions of my cdr plugin, no loss, no gain.
+
+  2.) a mode called "Read subchannels". Go figure ;) Well, I advise NOT to use
+      that mode, ehehe. Confused? Aahhh... lemme try to explain: I've coded
+      four different sub channel read modes (one is working on my Pioneer in BE_2
+      scsi read mode, one is working on my Teac in combination with the 28_1 mode, 
+      one is using the standard scsi "read subchannel" command (gives not the 
+      exact values on my drives), and one is only available in W2K/XP (and also
+      doesn't give exact values on my drives). But all of them will SLOW
+      DOWN the cdrom access (well, the BE_2 mode is kinda OK, but the teac mode
+      has the same effect as a FPS limitation to 3 FPS if a game is accessing
+      the cd all the time).
+      And I've noticed that a randomly accessed subchannel reading of sectors 
+      can lead to some wrong bits in the subchannel data from time to time, due 
+      to the lack of some error correction... bad thing!
+      So, that leads us to the 3. RECOMMENDED mode:
+
+  3.) "Use subchannel SBI/M3S info file". What's that? Easy: the plugin will only
+      do the normal, fast data reading (like mode 1), and everytime when a game 
+      wants to have subchannel data, the plugin will use the subchannel data stored
+      into a file on your harddisk. So, you just have to create a subchannel info
+      file of your copy protected game one time, and activate that file in the 
+      plugin if you want to play that special game (that's when a frontend like
+      ePSXeCutor comes handy, for creating different game configs, ehe :)
+      So, it kinda works like my PPF option, but of course you can create your
+      own info files, you don't need the help of some cracking crew =)
+
+      How to create such subchannel info files? Easy as well: there is a special 
+      button in the cdr config window, which will let you create the files directly
+      from your original cd, or (if your drive is not supported by my subchannel
+      reading funcs), you can convert a CloneCD SUB file... of course you will
+      need CloneCD as well to do that, but it's the only way to get the subchannels
+      from a drive not supported by my plugin (and prolly there are many not
+      supported drives...)
+ 
+      I support 2 different subchannel info file types: a format which is also used
+      by epsxe, called "M3S". This files will ever be 71 kbyte in size, but they
+      don't contain _all_ subchannels from a game, just the ones of the minute 3
+      sectors... usually that's enuff for psx copy protections, but to be sure I
+      made my own file format as well, called "SBI". That one will contain all 
+      "nonsense" datas from track 1 of a game cd, so the size will vary (usually it's
+      small, though, only 5 - 20 kbytes). It takes more times to create "SBI" files,
+      well, so it's up to you :)
+
+  Ok, so you have created the subchannel info file, you did configure the plugin
+  to use it... and still the game doesn't work??? Why???
+  First: the main emu has to support the new subchannel commands... if it doesn't,
+  it will not work. At the time I am typing that text only ePSXe 1.5.1 can be
+  used with subchannels, but I am sure that more emus will follow... so stay tuned =)
+  Second: There is an option called "Enable subchannel support" in ePSXe 1.5.1 
+  (and in ePSXeCutor 1.0.5.1 as well, of course). You have to ENABLE that epsxe 
+  option, or otherwise epsxe will NOT use the subchannel data.
+  Additional note: the option has vanished in epsxe 1.0.5.2, it's not needed there
+  anymore.
+    
+  Oki... that covers the complex subchannel topic, I think... and now I am off 
+  playing Crash Team Racing (PAL) and MediEvil1 (PAL), ehehe ;)
+
+- Ah, well, some more notes (only important to emu coders, I think)
+  1. If you want to do a cdr plugin, and you want to know how the new subchannel
+     func is defined, or if you want to know he file format of SBI/M3S files,
+     you can check out the updated CDR PLUGIN interface specs on my emu development
+     site
+  2. The plugin now supports the "CDRgetDriveLetter" func... but only in W2K/XP...
+     no good working way found in W9X/ME yet... and the "CDRopen" has to be
+     called before trying to get the drive letter.
+  3. The plugin now supports the PCSX "CDRgetStatus" func... in a way, at least.
+     It will not give ALL wanted status infos, since some of them are hard to get
+     without slowing everything down... ah, we will see.
+  4. The new subchannel func (and the "CDRgetStatus" func as well) can be used
+     by a main emu team to get the current audio play position (BCD coded
+     time stamps)... of course only when some CDDA is playing ;)
+
+
+"Each step I take
+ May it hurt may it ache
+ Leads me further
+ Away from the past
+ But as long as I breath
+ Each smile on my bleak face
+ I'm on my way to find
+ Back to the peace of mind" 
+- "The Soulforged" by Blind Guardian
+
+--------------------------------------------------------------------------
+
+05. January, 2002   Version 1.9
+
+- Copy & paste from V1.8:
+  Another very small update: my cdda funcs are now using a different 
+  "stop cdda audio playing" command, since the old code didn't 
+  work on all drives :)
+  Yup, the 'stop cdda' stuff from 1.8 wasn't perfect as well, so I 
+  hope that this version will now work without problems... I've 
+  checked it with my Pioneer and Teac drive, and haven't seen any 
+  troubles anymore.
+   
+- And another small bug has been squashed: if you have tried to select
+  the "raw" mode in W2K/XP the first time, there were some chances 
+  that the cdr config window couldn't get closed (because the plugin 
+  demanded that you should also select a scsi reading mode... and of 
+  course there are none in the "raw" interface :)
+  
+
+"He can remember hearing words of wonder
+ 'Failure is on the inside'
+ so often does he wonder
+ how hard it is without a guide"
+- "Red is a mean, mean colour" by Steve Harley and Cockney Rebel
+
+
+--------------------------------------------------------------------------
+
+02. December, 2001   Version 1.8
+
+- Another very small update: my cdda funcs are now using a different 
+  "stop cdda audio playing" command, since the old code didn't 
+  work on all drives. Thanx to calb for doing tests.
+
+  Btw, only PCSX is using the plugin's cdda funcs right now, epsxe
+  1.4 is using mci audio with W9x/ME, and native ioctrl calls
+  with NT/2K/XP (and that's not working with external cdr plugins, 
+  as you can read in the 1.7 notes)... but, as you can easily 
+  figure out, that will change in the future :) 
+
+
+"Can you shield me
+ From the drastic truth?
+ Times come and go
+ How dull the flow
+ All that I hope
+ The Unknown knows"
+- "The Unknown Knows" by Voivod
+
+
+--------------------------------------------------------------------------
+
+22. September, 2001   Version 1.7
+
+- Short info: 
+  native W2K/XP support without the need for an additional 
+  installed ASPI layer.
+
+  _Long_ info (you have been warned ;) :
+  Some weeks ago I've installed W2K on my new system (along with
+  W98 and Linux), and of course one of the first things I've done
+  was checking all my plugins under W2K. 
+
+  Well, the gpus were working fine, the spu had some problems
+  (should be fixed, check out V1.11), but the cdr plugin did run
+  _very_ slowly in ePSXe. Unplayable. The native internal epsxe 
+  W2K cdr plugin did work fast, but, as usual, only on my Pioneer
+  DVD drive, and not at all on my TEAC cdrom drive. 
+
+  Well, I suspected the forced ASPI layer was giving me such a bad 
+  performance, so I started to code a native W2K iocontrol interface
+  on my own.
+
+  It worked... with the same horrible speed as the ASPI layer...
+  a game wants to read one (not yet cached) sector, the drive spins 
+  up, reads the sector, spins down and giving finally the wanted 
+  data... that did take 3 seconds on my Pioneer for one sector, and
+  9 seconds on my TEAC... needless to say that it would take hours
+  to load a game that way, bah!
+
+  Well, I tried another way, still using iocontrol, but without scsi
+  commands this time (using the raw read command)... and, still the 
+  same! Okay, finally I've tried a simple FileRead command (that one
+  isn't very compatible, it will not give all the psx sector data, 
+  but hey, I was desperate :)... and still slow!
+
+  And... I gave up! Well, for the time beings... on IRC lu_zero 
+  suggested to try FPSE with the native FPSE W2k cdr plugin, to see 
+  if that one has the same troubles on my system. And it worked 
+  fine (again only on my Pioneer, the TEAC one was refusing to
+  read anything).
+
+  I suspected some kind of conspiracy (hey, if two independed emu
+  teams _can_ read fast at least with one of my drives, and I 
+  can't... that's an hit for my ego! ;)
+
+  By pure luck I checked lazily my native W2K funcs with FPSE,
+  instead of ePSXe... and BOOOOM... suddenly my code also was
+  working fast! Even on both of my drives! Started ePSXe again... 
+  slow! Started FPSE... fast! WTF?!? Well, finally I've found the 
+  reason: if you are enabling CDDA support in ePSXe, the emu
+  is communicating directly with the cdrom drive, bypassing
+  the cdr plugin... and that's something W2K obiously doesn't like 
+  much... BAD, calb, BAD :)
+
+  Oki, lesson learned: if you want to use a different cdr plugin
+  (not the native epsxe one) with W2k, you have to disable the 
+  epsxe cdda support... at least until epsxe 1.5 is released
+  (you better run fast, calb, or I will kick your sorry ass ;)
+  Not a big issue, since most games are not using cdda at all.
+
+  And now the good news: since I had done so much reseach, it 
+  was easy to finish my native W2K iocontrol support. As a matter
+  of fact there are two W2K modes in my plugin, a "raw reading"
+  mode, and a "scsi command" one. The raw mode doesn't need any
+  vendor specific read commands, hopefully it will work on most
+  drives out there. And even better: the performance is increased
+  compared to the native epsxe/fpse w2k plugins, AND my TEAC
+  drive is working fine as well :)
+
+  Yeah, finally I can sleep well again ;)
+
+  
+"On the edge of the rainbow
+ Where eagles learn to fly
+ All of our dreams, they seemed so clear
+ Into the morning
+ Into the light of dawn
+ We're flying higher than before"
+- "Lake of Tears" by Gamma Ray
+
+--------------------------------------------------------------------------
+
+15. July, 2001   Version 1.6
+
+- "Try again on reading error" option. Now you
+  can tell the cdr plugin to try the sector reading
+  up to 10 times again. Very helpfull with scratched
+  CDs (like my Tomb Raider 2 one ;)
+
+- "Use PPF file" option. Some psx games need special 
+  patches to work right. Or you want to use special 
+  trainers/cheats for your game. 
+  In the past you had to create an ISO of that game, apply 
+  the patch, and burn the game again. Now you can simply 
+  select a PPF file in the plugin config, and the patch will
+  be done automatically within the cdr plugin while playing 
+  the game... no need to make patched copies anymore :)
+  I've made the patching engine very fast, I think, so you
+  shouldn't see any performance hits (of course it will not
+  _improve_ the performance as well ;)
+  Btw, every request for PPF files will be ignored... 
+  The plugin supports PPF1 and PPF2 files, but it will
+  not check if the PPF file is 'right' for the game you are 
+  playing. So take care (or better: take ePSXeCutor/
+  PSSwitch/new AdriGUI to create different game configs).
+  Big thanx for that idea to JNS... you were right... it is 
+  possible :)
+
+
+"If I could hold on to just one thought
+ For long enough to know
+ Why my mind is moving so fast
+ and the conversation is slow"
+- "Barstool Blues" by Neil Young
+
+--------------------------------------------------------------------------
+
+10. June, 2001   Version 1.5
+
+- A rather small update: the interface for getting
+  the track informations was handled wrong with
+  the previous versions (1.4 or lower) .
+  Well, more exactly, my plugin had given the right 
+  infos, but not in the same way as all other available
+  cdr plugins ;)
+  It wasn't noticed because that infos are only used
+  on CDDA audio playing, I think, but the keen eyes
+  of linuzappz see everything :)
+
+
+"'Oh please, don't sell me out', 
+ said the man with the hammer, hammering the anvil
+ 'I've been walking on the road of rocks
+ and I keep on hammering, keep on hammering, 
+ keep on hammering, hammering the anvil.'"
+- "Hammer Song" by The Sensational Alex Harvey Band
+
+--------------------------------------------------------------------------
+
+29. May, 2001   Version 1.4
+
+- A few drives are not supporting the "wait til
+  ready" command I am using on startup. So I've 
+  decided to make an option for turning that waiting
+  function off... activate it, if the plugin is only giving
+  you a black screen with _all_ of your games on 
+  startup.
+
+- A new caching mode, called "Async read". That one
+  will give you a few more FPS on MDECs and XA 
+  audio, by doing an additional 'intelligent', non-blocking 
+  read... 
+  I've seen up to 10 FPS faster mdecs that way... not
+  too bad... no other cdr plugin is getting an higher 
+  speed on my system right now :)
+  Big thanx to Roor for suggestions...
+  
+ 
+"Hogwarts, Hogwarts, Hoggy Warty Hogwarts,
+ Teach us something please,
+ Whether we be old and bald
+ Or young with scabby knees,
+ Our heads could do with filling
+ With some interesting stuff,
+ For now they're bare and full of air,
+ Dead flies and bits of fluff"
+- "Harry Potter and the Philosopher's Stone" by J.K. Rowling
+
+--------------------------------------------------------------------------
+
+19. May, 2001   Version 1.3
+
+- My cdr plugin did report the track start address in
+  a wrong way to the main emus (it reported the start
+  of track 2, when it got asked about track 1, and so on...)
+  That's fixed.
+
+- Support functions for PCSX cdda audio playing.
+  No other emu is using that functions right now.
+
+
+"Ballerspiel-Ballerspiel ... zu gewinnen ist mein Ziel.
+ Ballerspiel-Ballerspiel ... zu verlieren gibt's nicht viel.
+ Hoi-Hoi, Hoi-Hoi, Hoi-Hoi"
+- "Ballerspiel" by Abgehörte Telefonate
+
+--------------------------------------------------------------------------
+
+05. May, 2001   Version 1.2
+
+- I knew it... once I've started, I can't stop... sigh ;)
+  First of all, I've improved the "read ahead" caching, 
+  should be a bit faster now.
+
+- The plugin is now waiting until the drive is reporting
+  everything is ready. That will prevent crashes which
+  could happen in the past on game startup (mostly 
+  after changing a game cd).
+
+- "Cd drive speed limit" option. Maybe your drive will
+  doing the reads smoother and less noisy if you limit
+  its speed (no differences on my drives, though).
+  Not all drives will support this option. 
+  
+- Note: don't forget to set the correct cdrom drive letter in 
+  epsxe... otherwise lockups can happen.
+
+- There will be NO 1.3 version today... REALLY :)
+
+
+"Who will trade his karma for my kingdom?"
+- "Karma" by Kamelot (they have supported me well 
+   while coding this plugin :)
+
+--------------------------------------------------------------------------
+
+05. May, 2001   Version 1.1
+
+- Bah...  "don't expect a 1.1 version anytime soon"...
+  Funny :)
+  Well, after I've got some mails concerning my cdr
+  plugin, telling me it doesn't work (crashes or just a few
+  frames displayed), I've done some investigations and
+  found that older epsxe versions (older than the one I 
+  am using currently anyway ;) had a bug in opening
+  the cdr plugin... Bad, calb, bad! ;)
+  Well, I've added some "security" code, so now the 
+  plugin should work with all epsxe versions...
+  
+- Don't expect a 1.2 version anytime soon... ;)
+
+
+"I don't believe that my story is set
+ nothing is destined or blatant"
+- "Wings of Despair" by Kamelot
+
+--------------------------------------------------------------------------
+
+04. May, 2001   Version 1.0
+
+- That's the first release, so don't expect much
+  version news :)
+  Please check out the readme for details.
+
+- Mmm... and don't expect a 1.1 version anytime 
+  soon. The plugin is complete and bugfree ;P
+  Well, maybe if some main emu author comes
+  up with a fancy idea for the psx cdr emulation...
+  we will see :)
+
+
+"Where is all the magic gone
+ lost behind or lost along
+ a victim of the pulse of our society
+ don't you miss the ancient times
+ the riddles and the subtle signs
+ a relative perspective on reality"
+- "The Spell" by Kamelot
+
+--------------------------------------------------------------------------

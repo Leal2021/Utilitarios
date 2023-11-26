@@ -1,0 +1,36 @@
+Plugin: Pete's OpenGL2 Driver 2.9
+Author: Pete Bernert
+Card vendor: NVIDIA Corporation
+GFX card: GeForce 9800 GTX+/PCI/SSE2
+
+Resolution/Color:
+- 1024x768 Fullscreen - NO desktop changing
+- Internal X resolution: 2
+- Internal Y resolution: 3
+- Keep psx aspect ratio: off
+- No render-to-texture: off
+
+- Filtering: 6 - edge clamping supported
+- Hi-Res textures: 2
+- TexWin pixel shader: off
+- VRam size: 0 MBytes - 195 textures usable
+
+Framerate:
+- FPS limitation: on 
+- Frame skipping: off
+- FPS limit: Auto
+
+Compatibility:
+- Offscreen drawing: 0
+- Framebuffer effects: 3
+- Framebuffer uploads: 1
+- Subtractive blending: activated
+
+Misc:
+- Scanlines: off
+- Mdec filter: on 
+- Screen filtering: on 
+- Shader effects: 5/1
+- Flicker-fix border size: 0
+- GF4/XP crash fix: off
+- Game fixes: off [00000000]

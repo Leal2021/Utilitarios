@@ -1,0 +1,6 @@
+This program is freeware and cannot be sold.
+Also this program cannot be distributed without written permission.
+This program cannot be used for any commercial purposes.
+You may not reverse engineer, decompile, or disassemble the enclosed software.
+Authors are not responsible for any damages that this program may cause,
+and are also not responsible for anything this plugin will be used for.
