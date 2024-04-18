@@ -1,0 +1,19 @@
+		CURSOS A FAZER
+- POWERBI		iniciado	02/01/2024
+- PHOTOSHOP 2019	iniciado	ok
+- PHYTON		aguardando
+- JAVA			aguardando
+- JAVASCRIPT		aguardando
+- LINUX			aguardando
+- C++			aguardando
+- C#			aguardando
+- POWERSHELL		aguardando
+- REDES			aguardando
+- PHP			aguardando
+- WORDPRESS		aguardando
+- SQL			aguardando
+- MOCSQL		aguardando
+--------------------------------------------------
+
+--------------- TAREFAS -----------------------
+- separar dados para serem gravados em dvd

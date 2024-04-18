@@ -1,0 +1,32 @@
+1080 lar
+1350 alt 92pixels/pol full hd e 4k
+
+FORMA COMPLEXA
+- Colocar linhas guias ao redor
+- CTRL + ALT + C
+- marcar relativo e colocar a medida 1080
+- Group (Corte Demarcado)
+- pressionar Enter
+- CTRL + ALT + SHIFT + S (Exportar para web) esse formato compacta com menor tamanho
+
+
+-------------------------------
+- Ferramenta Fatia (Group)
+- pressionar Fatiar Apartir das Linhas Guias (topo)
+- exportar web
+- png 24
+marcar as duas opções abaixo do png 
+- salvar 
+após esse procedimento será criado uma pasta com todas as imagens fatiadas
+- caso tenho algum erro
+- exportar para web
+- segurar o alt e rolar
+- clicar na fatia
+- salvar, escolher fatia selecionada
+
+-------------------------------------------
+MARGENS EM CARROSSEL
+2160
+
+1080 
+1350 - 1080 / 2
