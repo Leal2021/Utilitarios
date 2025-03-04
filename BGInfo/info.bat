@@ -1,0 +1,1 @@
+\\C:\Users\Helena\Desktop\BGInfo.exe \\C:\Users\Helena\Desktop\BGInfo\info.bgi /timer:0 /accepteula
